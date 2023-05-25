@@ -2,6 +2,7 @@ const fs = require("fs");
 const lemmatizer = require("node-lemmatizer");
 
 const excludeSet = new Set();
+const excludeLemmaSet = new Set();
 
 const normalizeWord = (wordInput, lemmatized) => {
   const word = wordInput
@@ -12,28 +13,43 @@ const normalizeWord = (wordInput, lemmatized) => {
     return [];
   }
   if (lemmatized) {
-    const lemmas = lemmatizer.only_lemmas(word.trim().toLowerCase());
+    const lemmas = lemmatizer.lemmas(word.trim().toLowerCase());
     return lemmas;
   } else {
-    return [word];
+    return [[word, undefined]];
   }
 };
 
 const excludeWord = (word, lemmatized) => {
   const list = normalizeWord(word, lemmatized);
-  list.forEach((lemma) => {
+
+  list.forEach((pair) => {
+    const lemma = pair[0];
+    const type = pair[1];
     excludeSet.add(lemma);
-    excludeSet.add(lemma + "ing");
-    excludeSet.add(lemma.substr(0, lemma.length - 1) + "ing");
-    excludeSet.add(lemma + "ly");
-    excludeSet.add(lemma + "lly");
-    excludeSet.add(lemma.substr(0, lemma.length - 1) + "ly");
-    excludeSet.add(lemma.substr(0, lemma.length - 1) + "lly");
+    excludeLemmaSet.add(lemma);
+    if (type === "verb") {
+      excludeSet.add(lemma + "ing");
+      excludeSet.add(lemma.substr(0, lemma.length - 1) + "ing");
+      excludeSet.add(lemma + "ed");
+      excludeSet.add(lemma + "d");
+      excludeSet.add(lemma.substr(0, lemma.length - 1) + "d");
+      excludeSet.add(lemma.substr(0, lemma.length - 1) + "ed");
+    }
+    if (type === "adj") {
+      excludeSet.add(lemma + "ly");
+      excludeSet.add(lemma + "lly");
+      excludeSet.add(lemma.substr(0, lemma.length - 1) + "ly");
+      excludeSet.add(lemma.substr(0, lemma.length - 1) + "lly");
+    }
   });
 };
 
 const excludeLine = (line) => {
-  line.toLowerCase().split(/\s+/).forEach(excludeWord);
+  line
+    .toLowerCase()
+    .split(/\s+/)
+    .forEach((word) => excludeWord(word, true));
 };
 
 const excludeText = (text) => {
@@ -55,6 +71,16 @@ ankiText.split("\n").forEach((line) => {
   excludeLine(phrase);
 });
 
+const britlexFile = "britlex.txt";
+const britlexText = fs.readFileSync(britlexFile, "utf8");
+britlexText
+  .toLowerCase()
+  .replaceAll(/\[.+\]/g, "")
+  .split(/\s+/)
+  .forEach((word) => {
+    excludeWord(word);
+  });
+
 const lemFile = "poplem.txt";
 const lemText = fs.readFileSync(lemFile, "utf8");
 excludeText(lemText);
@@ -71,6 +97,8 @@ const sentences = inputText
 // Create a map to store the word counts
 const rareCountMap = new Map();
 const allCountSet = new Set();
+let allWordsCount = 0;
+let rareWordsCount = 0;
 
 sentences.forEach((sentence) => {
   const words = sentence.split(/\s+/).map((word) => word.trim());
@@ -80,16 +108,19 @@ sentences.forEach((sentence) => {
       return;
     }
 
+    allWordsCount += 1;
+
     // Transform word to lowercase and remove non-letter symbols
     const cleanedWordForms = normalizeWord(word, true);
     if (!cleanedWordForms.length) {
       return;
     }
 
-    cleanedWordForms.forEach((cleanedWord) => {
+    cleanedWordForms.forEach(([cleanedWord, type]) => {
       allCountSet.add(cleanedWord);
 
       if (!excludeSet.has(cleanedWord)) {
+        rareWordsCount += 1;
         const found = rareCountMap.get(cleanedWord);
         const count = found?.count || 0;
         const sentences =
@@ -112,7 +143,7 @@ const sortedEntries = [...rareCountMap.entries()].sort(
 const resultString = sortedEntries
   .map(
     ([word, props]) =>
-      props.count + "\t\t" + word + "\t" + props.sentences.join(". ")
+      props.count + "\t\t" + word + "\t\t\t" + props.sentences.join(". ")
   )
   .join("\n");
 
@@ -120,6 +151,16 @@ const resultString = sortedEntries
 const resultFile = "result.txt";
 fs.writeFileSync(resultFile, resultString, "utf8");
 
+const excludedFile = "excluded.txt";
+fs.writeFileSync(excludedFile, [...excludeLemmaSet].join("\n"), "utf8");
+
 console.log("Word count map saved to", resultFile);
-console.log("Input words count: ", allCountSet.size);
-console.log("Result words count: ", sortedEntries.length);
+console.log("All input words count: ", allWordsCount);
+console.log("All rare words count: ", rareWordsCount);
+console.log(
+  "Rare words rate: ",
+  ((rareWordsCount * 100) / allWordsCount).toFixed(1) + "%"
+);
+console.log("Unique input lemmas count: ", allCountSet.size);
+console.log("Unique excluded words count: ", excludeLemmaSet.size);
+console.log("Unique rare lemmas count: ", sortedEntries.length);
