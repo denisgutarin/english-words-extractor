@@ -158,9 +158,9 @@ console.log("Word count map saved to", resultFile);
 console.log("All input words count: ", allWordsCount);
 console.log("All rare words count: ", rareWordsCount);
 console.log(
-  "Rare words rate: ",
-  ((rareWordsCount * 100) / allWordsCount).toFixed(1) + "%"
+  "Text simplicity: ",
+  ((100 * (allWordsCount - rareWordsCount)) / allWordsCount).toFixed(1) + "%"
 );
 console.log("Unique input lemmas count: ", allCountSet.size);
-console.log("Unique excluded words count: ", excludeLemmaSet.size);
+console.log("Unique excluded lemmas count: ", excludeLemmaSet.size);
 console.log("Unique rare lemmas count: ", sortedEntries.length);
