@@ -119,6 +119,8 @@ sentences.forEach((sentence) => {
   words.forEach((word) => {
     word = word.replaceAll(/[^a-zA-Z\-']+/g, "").trim();
 
+    allWordsCount += 1;
+
     if (/[A-Z]/g.test(word) || word.includes("'")) {
       return;
     }
@@ -126,8 +128,6 @@ sentences.forEach((sentence) => {
     if (word.length < 4) {
       return;
     }
-
-    allWordsCount += 1;
 
     // Transform word to lowercase and remove non-letter symbols
     const cleanedWordForms = normalizeWord(word, true);
