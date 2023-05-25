@@ -42,6 +42,14 @@ const excludeWord = (word, lemmatized) => {
       excludeSet.add(lemma.substr(0, lemma.length - 1) + "ly");
       excludeSet.add(lemma.substr(0, lemma.length - 1) + "lly");
     }
+    if (type === "noun") {
+      excludeSet.add(lemma + "ing");
+      excludeSet.add(lemma.substr(0, lemma.length - 1) + "ing");
+      excludeSet.add(lemma + "ed");
+      excludeSet.add(lemma + "d");
+      excludeSet.add(lemma.substr(0, lemma.length - 1) + "d");
+      excludeSet.add(lemma.substr(0, lemma.length - 1) + "ed");
+    }
   });
 };
 
@@ -92,6 +100,11 @@ const inputText = fs.readFileSync(inputFile, "utf8");
 const sentences = inputText
   .replaceAll("--", "")
   .replaceAll('."', '".')
+  .replaceAll('?"', '?".')
+  .replaceAll('!"', '!".')
+  .replaceAll("!", "!.")
+  .replaceAll("?", "?.")
+  .replaceAll(";", ".")
   .split(/[?\.!]+/);
 
 // Create a map to store the word counts
@@ -104,7 +117,13 @@ sentences.forEach((sentence) => {
   const words = sentence.split(/\s+/).map((word) => word.trim());
 
   words.forEach((word) => {
+    word = word.replaceAll(/[^a-zA-Z\-']+/g, "").trim();
+
     if (/[A-Z]/g.test(word) || word.includes("'")) {
+      return;
+    }
+
+    if (word.length < 4) {
       return;
     }
 
@@ -123,12 +142,29 @@ sentences.forEach((sentence) => {
         rareWordsCount += 1;
         const found = rareCountMap.get(cleanedWord);
         const count = found?.count || 0;
-        const sentences =
-          (found?.sentences?.length ?? 0) < 3
-            ? [...(found?.sentences ?? []), sentence.replace(/\s+/g, " ")]
-            : found.sentences;
+        const newSentence = sentence
+          .replace(/\s+/g, " ")
+          .trim()
+          .replaceAll(word, `<b>${word}</b>`);
 
-        rareCountMap.set(cleanedWord, { count: count + 1, sentences });
+        if (!newSentence.length > 0) {
+          return;
+        }
+        const gap = new Array(word.length).fill("").join("_");
+        const gapSentence = newSentence.replaceAll(word, gap);
+        rareCountMap.set(cleanedWord, {
+          count: count + 1,
+          sentence:
+            newSentence.length > (found?.sentence?.length ?? 0) ||
+            !found?.sentence?.length
+              ? newSentence
+              : found.sentence,
+          gapSentence:
+            newSentence.length > (found?.sentence?.length ?? 0) ||
+            !found?.sentence?.length
+              ? gapSentence
+              : found.gapSentence,
+        });
       }
     });
   });
@@ -143,7 +179,13 @@ const sortedEntries = [...rareCountMap.entries()].sort(
 const resultString = sortedEntries
   .map(
     ([word, props]) =>
-      props.count + "\t\t" + word + "\t\t\t" + props.sentences.join(". ")
+      props.count +
+      "\t" +
+      word +
+      "\t" +
+      props.sentence +
+      "\t" +
+      props.gapSentence
   )
   .join("\n");
 
