@@ -162,5 +162,5 @@ console.log(
   ((100 * (allWordsCount - rareWordsCount)) / allWordsCount).toFixed(1) + "%"
 );
 console.log("Unique input lemmas count: ", allCountSet.size);
-console.log("Unique excluded lemmas count: ", excludeLemmaSet.size);
+console.log("Unique fundamental lemmas count: ", excludeLemmaSet.size);
 console.log("Unique rare lemmas count: ", sortedEntries.length);
