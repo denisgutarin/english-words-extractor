@@ -154,6 +154,7 @@ sentences.forEach((sentence) => {
         const gapSentence = newSentence.replaceAll(word, gap);
         rareCountMap.set(cleanedWord, {
           count: count + 1,
+          word,
           sentence:
             newSentence.length > (found?.sentence?.length ?? 0) ||
             !found?.sentence?.length
@@ -178,10 +179,12 @@ const sortedEntries = [...rareCountMap.entries()].sort(
 // Create a string representation of the sorted entries
 const resultString = sortedEntries
   .map(
-    ([word, props]) =>
+    ([lemma, props]) =>
       props.count +
       "\t" +
-      word +
+      lemma +
+      "\t" +
+      props.word +
       "\t" +
       props.sentence +
       "\t" +
