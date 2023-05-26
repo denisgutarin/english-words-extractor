@@ -1,19 +1,21 @@
 const fs = require("fs");
 const lemmatizer = require("node-lemmatizer");
 
+const INPUT_FILE_NAME = "dorian-gray.txt";
+
 const excludeSet = new Set();
 const excludeLemmaSet = new Set();
 
 const normalizeWord = (wordInput, lemmatized) => {
   const word = wordInput
-    .trim()
     .toLowerCase()
-    .replace(/[^a-z\-']+/g, "");
+    .replace(/[^a-z\-']+/g, " ")
+    .trim();
   if (!word) {
     return [];
   }
   if (lemmatized) {
-    const lemmas = lemmatizer.lemmas(word.trim().toLowerCase());
+    const lemmas = lemmatizer.lemmas(word);
     return lemmas;
   } else {
     return [[word, undefined]];
@@ -94,18 +96,19 @@ const lemText = fs.readFileSync(lemFile, "utf8");
 excludeText(lemText);
 
 // Read the input file
-const inputFile = "input.txt";
+const inputFile = INPUT_FILE_NAME;
 const inputText = fs.readFileSync(inputFile, "utf8");
 
 const sentences = inputText
-  .replaceAll("--", "")
+  .replaceAll("-", " ")
+  .replaceAll(/[“”]/g, `"`)
   .replaceAll('."', '".')
   .replaceAll('?"', '?".')
   .replaceAll('!"', '!".')
   .replaceAll("!", "!.")
   .replaceAll("?", "?.")
   .replaceAll(";", ".")
-  .split(/[?\.!]+/);
+  .split(/[\.]+/);
 
 // Create a map to store the word counts
 const rareCountMap = new Map();
@@ -114,14 +117,14 @@ let allWordsCount = 0;
 let rareWordsCount = 0;
 
 sentences.forEach((sentence) => {
-  const words = sentence.split(/\s+/).map((word) => word.trim());
+  const words = sentence.split(/(\s|")+/).map((word) => word.trim());
 
   words.forEach((word) => {
-    word = word.replaceAll(/[^a-zA-Z\-']+/g, "").trim();
+    word = word.replaceAll(/[^a-zA-Z'’]+/g, "").trim();
 
     allWordsCount += 1;
 
-    if (/[A-Z]/g.test(word) || word.includes("'")) {
+    if (/[A-Z]/g.test(word) || word.includes("'") || word.includes("’")) {
       return;
     }
 

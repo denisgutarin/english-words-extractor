@@ -11021,7 +11021,7 @@ terrorize
 defender
 toughness
 interchange
-plsheep
+pl sheep
 insufficient
 sufficiency
 insufficiency
@@ -11103,7 +11103,7 @@ charges
 unholy
 cutoff
 divinity
-neithernor
+neither nor
 carefree
 approximation
 anchorage
@@ -12677,7 +12677,7 @@ conspiracy
 adjective
 overview
 calf
-plcalves
+pl calves
 pervasive
 directory
 flex
@@ -12810,7 +12810,7 @@ affluence
 executioner
 defiant
 defiance
-plkin
+pl kin
 kinship
 hammer
 glint
@@ -12871,7 +12871,7 @@ autobiography
 automobile
 autonomy
 bacon
-bacteriabacterium
+bacteria bacterium
 ballad
 bamboo
 baptist
@@ -12962,7 +12962,7 @@ crab
 cracker
 crater
 creditor
-plcriteria
+pl criteria
 critique
 crystal
 cult
@@ -13387,24 +13387,24 @@ wednesday
 thursday
 beer
 cherry
-cancould
-wouldshould
+can could
+would should
 devil
 hell
 paradise
-moremost
-lessleast
-goodbetterbest
-badworseworst
+more most
+less least
+good better best
+bad worse worst
 thirteen
 dear
 glad
 drunken
 seventeen
 nineteen
-graygrey
+gray grey
 maybe
-yesyeah
+yes yeah
 n't
 yeah
 hey
@@ -13444,7 +13444,7 @@ mm-hmm
 islamic
 fifth
 criticize
-andor
+and or
 rep
 tablespoon
 hmm
