@@ -196,13 +196,13 @@ const resultString = sortedEntries
   .join("\n");
 
 // Save the result string to a file
-const resultFile = "result.txt";
+const resultFile = "extracted.txt";
 fs.writeFileSync(resultFile, resultString, "utf8");
 
 const excludedFile = "excluded.txt";
 fs.writeFileSync(excludedFile, [...excludeLemmaSet].join("\n"), "utf8");
 
-console.log("Word count map saved to", resultFile);
+console.log("Extracted words saved to", resultFile);
 console.log("All input words count: ", allWordsCount);
 console.log("All rare words count: ", rareWordsCount);
 console.log(
